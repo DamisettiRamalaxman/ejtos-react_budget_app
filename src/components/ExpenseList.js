@@ -1,27 +1,34 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getExpenses, deleteExpense } from '../api';
 import ExpenseItem from './ExpenseItem';
-import { AppContext } from '../context/AppContext';
 
 const ExpenseList = () => {
-    const { expenses } = useContext(AppContext);
+    const [expenses, setExpenses] = useState([]);
+
+    useEffect(() => {
+        const fetchExpenses = async () => {
+            const expenses = await getExpenses();
+            setExpenses(expenses);
+        };
+        fetchExpenses();
+    }, []);
+
+    const handleDelete = async (id) => {
+        const updatedExpenses = await deleteExpense(id);
+        setExpenses(updatedExpenses);
+    };
 
     return (
-        <table className='table'>
-              <thead className="thead-light">
-            <tr>
-              <th scope="col">Department</th>
-              <th scope="col">Allocated Budget</th>
-              <th scope="col">Increase by 10</th>
-              <th scope="col">Delete</th>
-            </tr>
-          </thead>
-            <tbody>
-            {expenses.map((expense) => (
-                <ExpenseItem id={expense.id} key={expense.id} name={expense.name} cost={expense.cost} />
-            ))}
-            </tbody>
-        </table>
+        <div>
+            <h2>Expenses</h2>
+            <ul>
+                {expenses.map((expense) => (
+                    <ExpenseItem key={expense.id} expense={expense} onDelete={handleDelete} />
+                ))}
+            </ul>
+        </div>
     );
 };
 
 export default ExpenseList;
+
