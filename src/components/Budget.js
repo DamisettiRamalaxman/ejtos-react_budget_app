@@ -1,17 +1,37 @@
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
+import { getBudget, updateBudget } from '../api';
 
 const Budget = () => {
-    const { budget } = useContext(AppContext);
-    const [newBudget, setNewBudget] = useState(budget);
-    const handleBudgetChange = (event) => {
-        setNewBudget(event.target.value);
-    }
+    const [budget, setBudget] = useState(0);
+    const [newBudget, setNewBudget] = useState('');
+
+    useEffect(() => {
+        const fetchBudget = async () => {
+            const budget = await getBudget();
+            setBudget(budget);
+        };
+        fetchBudget();
+    }, []);
+
+    const handleBudgetChange = async () => {
+        const updatedBudget = await updateBudget(Number(newBudget));
+        setBudget(updatedBudget);
+        setNewBudget('');
+    };
+
     return (
-<div className='alert alert-secondary'>
-<span>Budget: £{budget}</span>
-<input type="number" step="10" value={newBudget} onChange={handleBudgetChange}></input>
-</div>
+        <div>
+            <h1>Budget: ${budget}</h1>
+            <input
+                type="number"
+                value={newBudget}
+                onChange={(e) => setNewBudget(e.target.value)}
+                placeholder="Enter new budget"
+            />
+            <button onClick={handleBudgetChange}>Update Budget</button>
+        </div>
     );
 };
+
 export default Budget;
